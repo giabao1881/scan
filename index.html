@@ -430,9 +430,16 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
   <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js';
+    if (window['pdfjsLib']) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script>
+    
   </script>
   <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -690,22 +697,32 @@
     }
 
     async function addPdfPages(file) {
-      setStatus('Đang đọc PDF');
-      const bytes = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        setStatus(`Render PDF ${pageNum}/${pdf.numPages}`);
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: 2 });
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        const src = canvas.toDataURL('image/png');
-        await addImagePage(src, `${file.name} · trang ${pageNum}`);
+      try {
+        if (!window.pdfjsLib) {
+          throw new Error('PDF.js chưa tải xong');
+        }
+        setStatus('Đang đọc PDF');
+        const bytes = await file.arrayBuffer();
+        const loadingTask = pdfjsLib.getDocument({ data: bytes });
+        const pdf = await loadingTask.promise;
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          setStatus(`Render PDF ${pageNum}/${pdf.numPages}`);
+          const page = await pdf.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          const src = canvas.toDataURL('image/png');
+          await addImagePage(src, `${file.name} · trang ${pageNum}`);
+        }
+        setStatus('Đã nhập PDF');
+      } catch (error) {
+        console.error('PDF load error:', error);
+        setStatus('Không mở được PDF');
+        alert('Không mở được PDF. Hãy thử lại bằng PDF khác hoặc kiểm tra console để xem lỗi chi tiết.');
       }
-      setStatus('Đã nhập PDF');
     }
 
     async function ingestFiles(files) {

@@ -152,14 +152,14 @@
           <div class="topbar">
             <div class="topbar-left">
               <button class="btn primary" id="smartScanBtn">Smart Scan</button>
-              <button class="icon-btn" id="autoDetectBtn" title="Tự tìm giấy">⌁</button>
-              <button class="icon-btn" id="applyBtn" title="Làm đẹp">✨</button>
+              <button class="btn ghost" id="autoDetectBtn" title="Tự tìm giấy">Tự tìm 4 góc</button>
+              <button class="btn success" id="applyBtn" title="Làm đẹp">Lưu trang này</button>
             </div>
             <div class="topbar-right">
-              <button class="icon-btn" id="toggleEditBtn" title="Ẩn/hiện chỉnh tay">▣</button>
-              <button class="icon-btn" id="resetCornersBtn" title="Reset góc">↺</button>
-              <button class="icon-btn" id="rotateLeftBtn" title="Xoay trái">⟲</button>
-              <button class="icon-btn" id="rotateRightBtn" title="Xoay phải">⟳</button>
+              <button class="btn ghost" id="toggleEditBtn" title="Ẩn/hiện chỉnh tay">Bật/tắt chỉnh tay</button>
+              <button class="btn ghost" id="resetCornersBtn" title="Reset góc">Đặt lại 4 góc</button>
+              <button class="btn ghost" id="rotateLeftBtn" title="Xoay trái">Xoay trái</button>
+              <button class="btn ghost" id="rotateRightBtn" title="Xoay phải">Xoay phải</button>
             </div>
           </div>
           <div class="canvas-stage">
@@ -478,7 +478,7 @@
       previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
       previewCtx.drawImage(img, 0, 0);
       fileNameChip.textContent = page.name;
-      setMode(page.applied ? 'Bản đã làm đẹp' : (manualEditToggle.checked ? 'Kéo 4 góc để chỉnh' : 'Chế độ tự động'));
+      setMode(page.applied ? 'Trang này đã được lưu bản scan' : (manualEditToggle.checked ? 'Kéo 4 góc xong rồi bấm Lưu trang này' : 'Bật chỉnh tay hoặc bấm Smart Scan'));
       if (!page.applied && manualEditToggle.checked) renderOverlay(page);
       else overlaySvg.innerHTML = '';
     }

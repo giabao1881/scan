@@ -388,7 +388,7 @@
         const c = document.createElement('canvas');
         const meta = document.createElement('div');
         meta.className = 'meta';
-        meta.innerHTML = `<strong>Trang ${index + 1}</strong><span>${page.name}</span><span>${page.applied ? 'Đã scan' : 'Chưa áp dụng'}</span>`;
+        meta.innerHTML = `<strong>Trang ${index + 1}</strong><span>${page.name}</span><span>${page.saved ? 'Đã lưu bản scan' : (page.applied ? 'Đã scan' : 'Chưa scan')}</span>`;
         drawThumb(c, page);
         item.append(c, meta);
         item.addEventListener('click', () => setCurrentPage(index));
@@ -502,6 +502,7 @@
         corners: defaultCorners(image.width, image.height),
         resultImage: null,
         applied: false,
+        saved: false,
         rotation: 0,
       };
       state.pages.push(page);
@@ -568,43 +569,97 @@
 
     function findDocumentContourFromCanvas(srcCanvas) {
       if (!window.cv || !state.cvReady) return null;
-      let src = null, gray = null, blur = null, edged = null, contours = null, hierarchy = null, best = null;
+      let src = null, gray = null, blur = null, edged = null, contours = null, hierarchy = null, best = null, thresh = null, morph = null;
       try {
         src = cv.imread(srcCanvas);
         gray = new cv.Mat();
         blur = new cv.Mat();
         edged = new cv.Mat();
+        thresh = new cv.Mat();
+        morph = new cv.Mat();
         contours = new cv.MatVector();
         hierarchy = new cv.Mat();
+
         cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-        cv.GaussianBlur(gray, blur, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-        cv.Canny(blur, edged, 75, 200);
-        cv.findContours(edged, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
-        let maxArea = 0;
+        cv.GaussianBlur(gray, blur, new cv.Size(7, 7), 0, 0, cv.BORDER_DEFAULT);
+        cv.Canny(blur, edged, 50, 160);
+
+        const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(5, 5));
+        cv.dilate(edged, morph, kernel);
+        cv.morphologyEx(morph, morph, cv.MORPH_CLOSE, kernel);
+        kernel.delete();
+
+        cv.findContours(morph, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+        let maxScore = 0;
         let bestQuad = null;
+        const imageArea = src.rows * src.cols;
+        const centerX = src.cols / 2;
+        const centerY = src.rows / 2;
+
         for (let i = 0; i < contours.size(); i++) {
           const cnt = contours.get(i);
           const peri = cv.arcLength(cnt, true);
           const approx = new cv.Mat();
           cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
+
           if (approx.rows === 4) {
-            const area = cv.contourArea(approx);
-            if (area > maxArea) {
-              maxArea = area;
-              if (bestQuad) bestQuad.delete();
-              bestQuad = approx.clone();
+            const area = Math.abs(cv.contourArea(approx));
+            if (area > imageArea * 0.12) {
+              const rect = cv.boundingRect(approx);
+              const rectArea = rect.width * rect.height;
+              const fillRatio = area / Math.max(rectArea, 1);
+              const cx = rect.x + rect.width / 2;
+              const cy = rect.y + rect.height / 2;
+              const distCenter = Math.hypot(cx - centerX, cy - centerY);
+              const centerPenalty = 1 - (distCenter / Math.hypot(centerX, centerY));
+              const score = area * 0.72 + rectArea * 0.18 + fillRatio * 100000 + centerPenalty * 50000;
+              if (score > maxScore) {
+                maxScore = score;
+                if (bestQuad) bestQuad.delete();
+                bestQuad = approx.clone();
+              }
             }
           }
           cnt.delete();
           approx.delete();
         }
+
         if (bestQuad) {
           best = [];
-          for (let i = 0; i < 4; i++) {
-            best.push({ x: bestQuad.intPtr(i, 0)[0], y: bestQuad.intPtr(i, 0)[1] });
-          }
+          for (let i = 0; i < 4; i++) best.push({ x: bestQuad.intPtr(i, 0)[0], y: bestQuad.intPtr(i, 0)[1] });
           bestQuad.delete();
           best = orderPoints(best);
+        } else {
+          const fallback = new cv.MatVector();
+          const fallbackHierarchy = new cv.Mat();
+          cv.adaptiveThreshold(gray, thresh, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 31, 12);
+          const kernel2 = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(9, 9));
+          cv.morphologyEx(thresh, thresh, cv.MORPH_CLOSE, kernel2);
+          kernel2.delete();
+          cv.findContours(thresh, fallback, fallbackHierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+          let bestRect = null;
+          let bestArea = 0;
+          for (let i = 0; i < fallback.size(); i++) {
+            const cnt = fallback.get(i);
+            const rect = cv.boundingRect(cnt);
+            const area = rect.width * rect.height;
+            if (area > bestArea && area > imageArea * 0.15) {
+              bestArea = area;
+              bestRect = rect;
+            }
+            cnt.delete();
+          }
+          if (bestRect) {
+            best = orderPoints([
+              { x: bestRect.x, y: bestRect.y },
+              { x: bestRect.x + bestRect.width, y: bestRect.y },
+              { x: bestRect.x + bestRect.width, y: bestRect.y + bestRect.height },
+              { x: bestRect.x, y: bestRect.y + bestRect.height }
+            ]);
+          }
+          fallback.delete();
+          fallbackHierarchy.delete();
         }
       } catch (e) {
         console.error(e);
@@ -613,6 +668,8 @@
         gray && gray.delete();
         blur && blur.delete();
         edged && edged.delete();
+        thresh && thresh.delete();
+        morph && morph.delete();
         contours && contours.delete();
         hierarchy && hierarchy.delete();
       }
@@ -640,11 +697,17 @@
     }
 
     function smartScanCurrentPage() {
+      const page = currentPage();
+      if (!page) return;
       const found = autoDetectCurrentPage();
+      if (!found) {
+        setStatus('Auto scan chưa chuẩn, hãy kéo lại 4 góc rồi bấm ✨');
+        return;
+      }
       if (autoApplyToggle.checked) {
         applyScanToCurrentPage(true);
       } else {
-        setStatus(found ? 'Đã tìm giấy, có thể bấm Làm đẹp ngay' : 'Bạn có thể chỉnh tay rồi bấm Làm đẹp ngay');
+        setStatus('Đã tìm giấy, bấm ✨ để lưu bản scan cho trang này');
       }
     }
 
@@ -704,11 +767,7 @@
             colorTmp = new cv.Mat();
             cv.GaussianBlur(warped, colorTmp, new cv.Size(0, 0), 3, 3, cv.BORDER_DEFAULT);
             cv.addWeighted(warped, 1.35, colorTmp, -0.35, 8 + contrastValue * 0.6, out);
-            if (useAuto) {
-              const kernel = cv.Mat.ones(1, 1, cv.CV_8U);
-              cv.erode(out, out, kernel);
-              kernel.delete();
-            }
+            if (useAuto) cv.detailEnhance(out, out, 10, 0.15);
           } else {
             out = warped.clone();
           }
@@ -730,12 +789,7 @@
             gray.convertTo(out, -1, 1.12, contrastValue * 0.75);
           } else {
             cv.adaptiveThreshold(gray, out, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 31, thresholdValue);
-            if (useAuto) {
-              const kernel = cv.Mat.ones(1, 1, cv.CV_8U);
-              cv.medianBlur(out, out, 3);
-              cv.erode(out, out, kernel);
-              kernel.delete();
-            }
+            if (useAuto) cv.medianBlur(out, out, 3);
           }
         }
 
@@ -745,9 +799,10 @@
         img.onload = () => {
           page.resultImage = img;
           page.applied = true;
+          page.saved = true;
           renderThumbs();
           renderCurrentPage();
-          setStatus(fromSmart ? 'Đã smart scan xong' : 'Đã làm đẹp trang');
+          setStatus(fromSmart ? 'Đã Smart Scan và lưu cho trang này' : 'Đã lưu bản scan cho trang này');
         };
         img.src = outCanvas.toDataURL('image/png');
       } catch (e) {

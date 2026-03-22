@@ -6,17 +6,18 @@
   <title>Pro Document Scanner</title>
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: rgba(255,255,255,0.08);
-      --panel-2: rgba(255,255,255,0.12);
-      --line: rgba(255,255,255,0.14);
-      --text: #eef2ff;
-      --muted: #a5b4d4;
-      --accent: #60a5fa;
-      --accent-2: #22c55e;
-      --danger: #fb7185;
-      --shadow: 0 24px 80px rgba(0,0,0,.35);
-      --radius: 24px;
+      --bg: #0f172a;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --line: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --success: #16a34a;
+      --danger: #e11d48;
+      --shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+      --radius: 20px;
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
@@ -24,258 +25,111 @@
       margin: 0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(96,165,250,.15), transparent 26%),
-        radial-gradient(circle at top right, rgba(34,197,94,.14), transparent 24%),
-        linear-gradient(180deg, #0b1020 0%, #09111a 100%);
+      background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
     }
-    .shell {
-      max-width: 1500px;
-      margin: 0 auto;
-      padding: 24px;
-    }
+    .shell { max-width: 1480px; margin: 0 auto; padding: 22px; }
     .hero {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
+      display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap;
+      margin-bottom: 18px;
     }
     .title-wrap h1 {
-      margin: 0;
-      font-size: clamp(28px, 4vw, 46px);
-      line-height: 1.04;
-      letter-spacing: -.03em;
+      margin: 0; font-size: clamp(28px, 4vw, 42px); line-height: 1.05; letter-spacing: -.03em;
     }
-    .title-wrap p {
-      margin: 10px 0 0;
-      color: var(--muted);
-      max-width: 840px;
-      font-size: 15px;
-    }
+    .title-wrap p { margin: 8px 0 0; color: var(--muted); max-width: 840px; }
     .badge-row { display: flex; gap: 10px; flex-wrap: wrap; }
     .badge {
-      padding: 10px 14px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255,255,255,.05);
-      color: #dbeafe;
-      font-size: 13px;
-      backdrop-filter: blur(8px);
+      padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: #334155; font-size: 13px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
     }
-    .layout {
-      display: grid;
-      grid-template-columns: 320px 1fr 320px;
-      gap: 18px;
-    }
+    .layout { display: grid; grid-template-columns: 300px 1fr 320px; gap: 18px; }
     .panel {
-      border: 1px solid var(--line);
-      background: var(--panel);
-      backdrop-filter: blur(18px);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      min-height: 200px;
+      border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
     }
     .panel-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--line);
+      display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fbfdff);
     }
-    .panel-head h2 {
-      margin: 0;
-      font-size: 15px;
-      letter-spacing: .02em;
-    }
+    .panel-head h2 { margin: 0; font-size: 15px; }
     .panel-body { padding: 18px; }
     .stack { display: grid; gap: 14px; }
     .dropzone {
-      position: relative;
-      border: 1.5px dashed rgba(255,255,255,.24);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      min-height: 180px;
-      border-radius: 22px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 22px;
-      transition: .22s ease;
-      cursor: pointer;
+      position: relative; border: 2px dashed #bfd4ff; background: linear-gradient(180deg, #f8fbff, #eef5ff);
+      min-height: 168px; border-radius: 20px; display: grid; place-items: center; text-align: center; padding: 22px; transition: .2s ease; cursor: pointer;
     }
-    .dropzone.drag {
-      border-color: var(--accent);
-      background: linear-gradient(180deg, rgba(96,165,250,.16), rgba(96,165,250,.08));
-      transform: translateY(-1px);
-    }
-    .dropzone h3 { margin: 0 0 8px; font-size: 20px; }
+    .dropzone.drag { border-color: var(--accent); background: #eaf2ff; transform: translateY(-1px); }
+    .dropzone h3 { margin: 0 0 8px; font-size: 20px; color: #0f172a; }
     .dropzone p { margin: 0; color: var(--muted); font-size: 14px; }
-    .dropzone input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
+    .dropzone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
     .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .btn, select, input[type="range"] {
-      width: 100%;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-size: 14px;
+      width: 100%; border: 1px solid var(--line); background: #fff; color: var(--text); border-radius: 14px; padding: 12px 14px; font-size: 14px;
     }
-    .btn {
-      cursor: pointer;
-      transition: .18s ease;
-      font-weight: 600;
-    }
-    .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,.09); }
-    .btn.primary {
-      background: linear-gradient(135deg, rgba(96,165,250,.95), rgba(59,130,246,.84));
-      border: none;
-      color: white;
-    }
-    .btn.success {
-      background: linear-gradient(135deg, rgba(34,197,94,.95), rgba(22,163,74,.84));
-      border: none;
-      color: white;
-    }
-    .btn.ghost { background: rgba(255,255,255,.04); }
-    .btn.warn {
-      background: linear-gradient(135deg, rgba(251,113,133,.95), rgba(225,29,72,.82));
-      border: none;
-      color: white;
-    }
+    .btn { cursor: pointer; transition: .18s ease; font-weight: 600; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+    .btn.success { background: var(--success); border-color: var(--success); color: white; }
+    .btn.ghost { background: #f8fafc; }
+    .btn.warn { background: var(--danger); border-color: var(--danger); color: white; }
     .toolbar { display: grid; gap: 12px; }
     .field { display: grid; gap: 8px; }
-    .field label { color: #dbeafe; font-size: 13px; }
+    .field label { color: #334155; font-size: 13px; font-weight: 600; }
     .field small { color: var(--muted); font-size: 12px; }
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .stat {
-      background: rgba(255,255,255,.05);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-    }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat { background: var(--panel-soft); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
     .stat strong { display: block; font-size: 24px; margin-bottom: 6px; }
     .stat span { color: var(--muted); font-size: 12px; }
-    .thumbs {
-      display: grid;
-      gap: 10px;
-      max-height: 58vh;
-      overflow: auto;
-      padding-right: 4px;
-    }
+    .thumbs { display: grid; gap: 10px; max-height: 58vh; overflow: auto; padding-right: 4px; }
     .thumb {
-      display: grid;
-      grid-template-columns: 76px 1fr;
-      gap: 12px;
-      padding: 10px;
-      border-radius: 18px;
-      border: 1px solid transparent;
-      background: rgba(255,255,255,.045);
-      cursor: pointer;
-      transition: .18s ease;
-      align-items: center;
+      display: grid; grid-template-columns: 76px 1fr; gap: 12px; padding: 10px; border-radius: 18px; border: 1px solid transparent;
+      background: #f8fafc; cursor: pointer; transition: .18s ease; align-items: center;
     }
-    .thumb:hover { border-color: var(--line); background: rgba(255,255,255,.07); }
-    .thumb.active { border-color: rgba(96,165,250,.72); background: rgba(96,165,250,.12); }
-    .thumb canvas {
-      width: 76px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 12px;
-      background: white;
-      display: block;
-    }
-    .thumb .meta { min-width: 0; }
+    .thumb:hover { border-color: var(--line); background: #f1f5f9; }
+    .thumb.active { border-color: #93c5fd; background: #eff6ff; }
+    .thumb canvas { width: 76px; height: 100px; object-fit: cover; border-radius: 12px; background: white; display: block; }
     .thumb .meta strong { display: block; font-size: 13px; }
     .thumb .meta span { color: var(--muted); font-size: 12px; display: block; margin-top: 3px; }
-    .viewer-wrap {
-      padding: 18px;
-      display: grid;
-      gap: 14px;
-    }
-    .viewer-toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+    .viewer-wrap { padding: 18px; display: grid; gap: 14px; }
+    .viewer-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .chip {
-      background: rgba(255,255,255,.05);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 12px;
-      color: #dbeafe;
+      background: #f8fafc; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font-size: 12px; color: #334155;
     }
     .canvas-stage {
-      position: relative;
-      border-radius: 24px;
-      border: 1px solid var(--line);
-      background:
-        linear-gradient(45deg, rgba(255,255,255,.035) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.035) 75%),
-        linear-gradient(45deg, rgba(255,255,255,.035) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.035) 75%),
-        rgba(2,6,23,.4);
-      background-size: 24px 24px;
-      background-position: 0 0, 12px 12px;
-      min-height: 68vh;
-      display: grid;
-      place-items: center;
-      overflow: auto;
-      padding: 18px;
+      position: relative; border-radius: 24px; border: 1px solid var(--line); background:
+        linear-gradient(45deg, rgba(148,163,184,.08) 25%, transparent 25%, transparent 75%, rgba(148,163,184,.08) 75%),
+        linear-gradient(45deg, rgba(148,163,184,.08) 25%, transparent 25%, transparent 75%, rgba(148,163,184,.08) 75%), #f8fafc;
+      background-size: 24px 24px; background-position: 0 0, 12px 12px; min-height: 70vh; display: grid; place-items: center; overflow: auto; padding: 18px;
     }
-    .canvas-box {
-      position: relative;
-      display: inline-block;
-      max-width: 100%;
-    }
+    .canvas-box { position: relative; display: inline-block; max-width: 100%; }
     #previewCanvas {
-      max-width: min(100%, 900px);
-      max-height: 76vh;
-      display: block;
-      border-radius: 18px;
-      box-shadow: 0 18px 50px rgba(0,0,0,.35);
-      background: white;
-      touch-action: none;
+      max-width: min(100%, 900px); max-height: 76vh; display: block; border-radius: 18px; box-shadow: 0 18px 50px rgba(15, 23, 42, .16); background: white; touch-action: none;
     }
-    #overlaySvg {
-      position: absolute;
-      inset: 0;
-      pointer-events: auto;
-      overflow: visible;
-    }
-    .help {
-      display: grid;
-      gap: 12px;
-    }
+    #overlaySvg { position: absolute; inset: 0; pointer-events: auto; overflow: visible; }
+    .help { display: grid; gap: 12px; }
     .note {
-      border-radius: 18px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.05);
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.55;
+      border-radius: 18px; padding: 14px; border: 1px solid var(--line); background: #f8fafc; color: var(--muted); font-size: 13px; line-height: 1.55;
     }
     .empty {
-      padding: 28px;
-      text-align: center;
-      color: var(--muted);
-      border: 1px dashed var(--line);
-      border-radius: 20px;
-      background: rgba(255,255,255,.03);
+      padding: 28px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 20px; background: #f8fafc;
     }
     .footer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .main-actions { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 10px; }
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .toggle-row { display: grid; gap: 10px; }
+    .toggle-card {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; background: #fff;
+    }
+    .toggle-card strong { display: block; font-size: 14px; }
+    .toggle-card span { color: var(--muted); font-size: 12px; }
+    .switch { position: relative; width: 50px; height: 30px; }
+    .switch input { display: none; }
+    .slider {
+      position: absolute; inset: 0; background: #cbd5e1; border-radius: 999px; transition: .2s;
+    }
+    .slider::before {
+      content: ''; position: absolute; width: 22px; height: 22px; left: 4px; top: 4px; background: white; border-radius: 50%; transition: .2s; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .switch input:checked + .slider { background: var(--accent); }
+    .switch input:checked + .slider::before { transform: translateX(20px); }
     @media (max-width: 1250px) {
       .layout { grid-template-columns: 300px 1fr; }
       .right-col { grid-column: 1 / -1; }
@@ -283,7 +137,7 @@
     @media (max-width: 880px) {
       .layout { grid-template-columns: 1fr; }
       .canvas-stage { min-height: 52vh; }
-      .stats { grid-template-columns: 1fr 1fr; }
+      .main-actions, .quick-actions, .btn-grid, .footer-actions { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -345,17 +199,19 @@
         <div class="panel-head">
           <h2>Trình chỉnh sửa</h2>
           <div class="viewer-toolbar">
-            <span class="chip" id="fileNameChip">Chưa có file</span>
-            <span class="chip" id="modeChip">Manual ready</span>
+            <div class="main-actions">
+              <button class="btn primary" id="smartScanBtn">Smart scan</button>
+              <button class="btn ghost" id="autoDetectBtn">Tự tìm giấy</button>
+              <button class="btn success" id="applyBtn">Làm đẹp ngay</button>
+            </div>
           </div>
-        </div>
-        <div class="viewer-wrap">
           <div class="viewer-toolbar">
-            <button class="btn primary" id="autoDetectBtn">Auto scan</button>
-            <button class="btn ghost" id="resetCornersBtn">Reset góc</button>
-            <button class="btn ghost" id="rotateLeftBtn">↺ Xoay trái</button>
-            <button class="btn ghost" id="rotateRightBtn">↻ Xoay phải</button>
-            <button class="btn success" id="applyBtn">Áp dụng scan</button>
+            <div class="quick-actions">
+              <button class="btn ghost" id="resetCornersBtn">Reset góc</button>
+              <button class="btn ghost" id="toggleEditBtn">Ẩn/hiện chỉnh tay</button>
+              <button class="btn ghost" id="rotateLeftBtn">↺ Xoay trái</button>
+              <button class="btn ghost" id="rotateRightBtn">↻ Xoay phải</button>
+            </div>
           </div>
 
           <div class="canvas-stage">
@@ -373,13 +229,46 @@
           <span class="chip" id="opencvChip">OpenCV loading...</span>
         </div>
         <div class="panel-body toolbar">
+          <div class="toggle-row">
+            <div class="toggle-card">
+              <div>
+                <strong>Tự động làm đẹp</strong>
+                <span>Tự tăng sáng nền, đậm chữ, lọc nhiễu khi scan.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="autoEnhanceToggle" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="toggle-card">
+              <div>
+                <strong>Tự áp dụng sau khi tìm giấy</strong>
+                <span>Bấm Smart scan sẽ tự crop và hiện luôn bản đẹp.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="autoApplyToggle" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="toggle-card">
+              <div>
+                <strong>Cho phép chỉnh tay 4 góc</strong>
+                <span>Tắt đi nếu bạn chỉ muốn scan tự động hoàn toàn.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="manualEditToggle" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
           <div class="field">
             <label>Bộ lọc scan</label>
             <select id="filterSelect">
               <option value="bw">Trắng đen scan</option>
+              <option value="cleanColor" selected>Màu làm đẹp</option>
               <option value="gray">Thang xám</option>
               <option value="color">Màu gốc đã làm phẳng</option>
-              <option value="cleanColor">Màu tăng sáng</option>
             </select>
           </div>
 
@@ -467,6 +356,9 @@
     const overlaySvg = document.getElementById('overlaySvg');
     const previewCtx = previewCanvas.getContext('2d', { willReadFrequently: true });
     const filterSelect = document.getElementById('filterSelect');
+    const autoEnhanceToggle = document.getElementById('autoEnhanceToggle');
+    const autoApplyToggle = document.getElementById('autoApplyToggle');
+    const manualEditToggle = document.getElementById('manualEditToggle');
     const contrastRange = document.getElementById('contrastRange');
     const thresholdRange = document.getElementById('thresholdRange');
     const jpgQualityRange = document.getElementById('jpgQualityRange');
@@ -596,11 +488,11 @@
 
     function renderOverlay(page) {
       overlaySvg.innerHTML = '';
-      if (!page || !page.corners) return;
+      if (!page || !page.corners || !manualEditToggle.checked) return;
       const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
       polygon.setAttribute('points', page.corners.map(p => `${p.x},${p.y}`).join(' '));
-      polygon.setAttribute('fill', 'rgba(96,165,250,0.18)');
-      polygon.setAttribute('stroke', 'rgba(96,165,250,0.96)');
+      polygon.setAttribute('fill', 'rgba(37,99,235,0.18)');
+      polygon.setAttribute('stroke', 'rgba(37,99,235,0.96)');
       polygon.setAttribute('stroke-width', '3');
       overlaySvg.appendChild(polygon);
 
@@ -611,7 +503,7 @@
         line.setAttribute('y1', p.y);
         line.setAttribute('x2', next.x);
         line.setAttribute('y2', next.y);
-        line.setAttribute('stroke', 'rgba(255,255,255,0.82)');
+        line.setAttribute('stroke', 'rgba(255,255,255,0.9)');
         line.setAttribute('stroke-width', '1.6');
         line.setAttribute('stroke-dasharray', '5 5');
         overlaySvg.appendChild(line);
@@ -623,13 +515,13 @@
         shadow.setAttribute('cx', p.x);
         shadow.setAttribute('cy', p.y);
         shadow.setAttribute('r', '16');
-        shadow.setAttribute('fill', 'rgba(0,0,0,0.25)');
+        shadow.setAttribute('fill', 'rgba(0,0,0,0.18)');
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', p.x);
         circle.setAttribute('cy', p.y);
         circle.setAttribute('r', '12');
         circle.setAttribute('fill', '#ffffff');
-        circle.setAttribute('stroke', '#3b82f6');
+        circle.setAttribute('stroke', '#2563eb');
         circle.setAttribute('stroke-width', '4');
         circle.style.cursor = 'grab';
         circle.dataset.index = i;
@@ -659,12 +551,9 @@
       previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
       previewCtx.drawImage(img, 0, 0);
       fileNameChip.textContent = page.name;
-      setMode(page.applied ? 'Applied result' : 'Editing corners');
-      if (!page.applied) {
-        renderOverlay(page);
-      } else {
-        overlaySvg.innerHTML = '';
-      }
+      setMode(page.applied ? 'Bản đã làm đẹp' : (manualEditToggle.checked ? 'Kéo 4 góc để chỉnh' : 'Chế độ tự động'));
+      if (!page.applied && manualEditToggle.checked) renderOverlay(page);
+      else overlaySvg.innerHTML = '';
     }
 
     function createImageFromSource(src) {
@@ -735,6 +624,7 @@
         } else if (file.type.startsWith('image/')) {
           const src = URL.createObjectURL(file);
           await addImagePage(src, file.name);
+          if (autoApplyToggle.checked && state.cvReady) smartScanCurrentPage();
         }
       }
       if (state.currentIndex === -1 && state.pages.length) state.currentIndex = 0;
@@ -812,13 +702,23 @@
 
     function autoDetectCurrentPage() {
       const page = currentPage();
-      if (!page) return;
+      if (!page) return false;
       if (page.applied) page.applied = false;
       const temp = drawImageOnTempCanvas(page.image);
       const found = findDocumentContourFromCanvas(temp);
       page.corners = found || defaultCorners(page.image.width, page.image.height);
       renderCurrentPage();
-      setStatus(found ? 'Đã auto scan' : 'Không thấy khung, dùng khung mặc định');
+      setStatus(found ? 'Đã tự tìm khung giấy' : 'Không thấy rõ mép giấy, dùng khung mặc định');
+      return !!found;
+    }
+
+    function smartScanCurrentPage() {
+      const found = autoDetectCurrentPage();
+      if (autoApplyToggle.checked) {
+        applyScanToCurrentPage(true);
+      } else {
+        setStatus(found ? 'Đã tìm giấy, có thể bấm Làm đẹp ngay' : 'Bạn có thể chỉnh tay rồi bấm Làm đẹp ngay');
+      }
     }
 
     function rotateCurrentPage(direction) {
@@ -846,11 +746,11 @@
       img.src = c.toDataURL('image/png');
     }
 
-    function applyScanToCurrentPage() {
+    function applyScanToCurrentPage(fromSmart = false) {
       const page = currentPage();
       if (!page || !state.cvReady) return;
       const srcCanvas = drawImageOnTempCanvas(page.image);
-      let src = null, dst = null, M = null, srcTri = null, dstTri = null, warped = null, gray = null, out = null;
+      let src = null, M = null, srcTri = null, dstTri = null, warped = null, gray = null, out = null, colorTmp = null;
       try {
         src = cv.imread(srcCanvas);
         const [tl, tr, br, bl] = orderPoints(page.corners);
@@ -864,26 +764,51 @@
         dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, maxWidth - 1, 0, maxWidth - 1, maxHeight - 1, 0, maxHeight - 1]);
         M = cv.getPerspectiveTransform(srcTri, dstTri);
         warped = new cv.Mat();
-        cv.warpPerspective(src, warped, M, new cv.Size(maxWidth, maxHeight), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+        cv.warpPerspective(src, warped, M, new cv.Size(maxWidth, maxHeight), cv.INTER_LINEAR, cv.BORDER_REPLICATE, new cv.Scalar());
 
         const filter = filterSelect.value;
         const thresholdValue = Number(thresholdRange.value);
         const contrastValue = Number(contrastRange.value);
+        const useAuto = autoEnhanceToggle.checked;
+
         if (filter === 'color' || filter === 'cleanColor') {
           out = new cv.Mat();
           if (filter === 'cleanColor') {
-            warped.convertTo(out, -1, 1.12, contrastValue * 0.7);
+            colorTmp = new cv.Mat();
+            cv.GaussianBlur(warped, colorTmp, new cv.Size(0, 0), 3, 3, cv.BORDER_DEFAULT);
+            cv.addWeighted(warped, 1.35, colorTmp, -0.35, 8 + contrastValue * 0.6, out);
+            if (useAuto) {
+              const kernel = cv.Mat.ones(1, 1, cv.CV_8U);
+              cv.erode(out, out, kernel);
+              kernel.delete();
+            }
           } else {
             out = warped.clone();
           }
         } else {
           gray = new cv.Mat();
           cv.cvtColor(warped, gray, cv.COLOR_RGBA2GRAY, 0);
+          if (useAuto) {
+            const blur = new cv.Mat();
+            const norm = new cv.Mat();
+            cv.GaussianBlur(gray, blur, new cv.Size(0, 0), 3, 3, cv.BORDER_DEFAULT);
+            cv.addWeighted(gray, 1.55, blur, -0.55, contrastValue * 0.9, gray);
+            cv.normalize(gray, norm, 0, 255, cv.NORM_MINMAX);
+            gray.delete();
+            blur.delete();
+            gray = norm;
+          }
           out = new cv.Mat();
           if (filter === 'gray') {
-            gray.convertTo(out, -1, 1.06, contrastValue * 0.8);
+            gray.convertTo(out, -1, 1.12, contrastValue * 0.75);
           } else {
-            cv.adaptiveThreshold(gray, out, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 25, thresholdValue);
+            cv.adaptiveThreshold(gray, out, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 31, thresholdValue);
+            if (useAuto) {
+              const kernel = cv.Mat.ones(1, 1, cv.CV_8U);
+              cv.medianBlur(out, out, 3);
+              cv.erode(out, out, kernel);
+              kernel.delete();
+            }
           }
         }
 
@@ -895,7 +820,7 @@
           page.applied = true;
           renderThumbs();
           renderCurrentPage();
-          setStatus('Đã áp dụng scan');
+          setStatus(fromSmart ? 'Đã smart scan xong' : 'Đã làm đẹp trang');
         };
         img.src = outCanvas.toDataURL('image/png');
       } catch (e) {
@@ -903,13 +828,13 @@
         setStatus('Lỗi khi scan');
       } finally {
         src && src.delete();
-        dst && dst.delete();
         M && M.delete();
         srcTri && srcTri.delete();
         dstTri && dstTri.delete();
         warped && warped.delete();
         gray && gray.delete();
         out && out.delete();
+        colorTmp && colorTmp.delete();
       }
     }
 
@@ -932,7 +857,7 @@
 
     function startDragCorner(evt) {
       const page = currentPage();
-      if (!page || page.applied) return;
+      if (!page || page.applied || !manualEditToggle.checked) return;
       const pt = pointerToCanvasPoint(evt);
       let hit = -1;
       page.corners.forEach((corner, i) => {
@@ -946,7 +871,7 @@
 
     function moveDragCorner(evt) {
       const page = currentPage();
-      if (!page || page.applied || state.draggingCorner < 0) return;
+      if (!page || page.applied || state.draggingCorner < 0 || !manualEditToggle.checked) return;
       const pt = pointerToCanvasPoint(evt);
       page.corners[state.draggingCorner] = {
         x: clamp(pt.x, 0, previewCanvas.width),
@@ -1055,11 +980,17 @@
 
     function bindControls() {
       document.getElementById('sampleBtn').addEventListener('click', loadSample);
+      document.getElementById('smartScanBtn').addEventListener('click', smartScanCurrentPage);
+      document.getElementById('toggleEditBtn').addEventListener('click', () => {
+        manualEditToggle.checked = !manualEditToggle.checked;
+        renderCurrentPage();
+      });
+      manualEditToggle.addEventListener('change', renderCurrentPage);
       document.getElementById('autoDetectBtn').addEventListener('click', autoDetectCurrentPage);
       document.getElementById('resetCornersBtn').addEventListener('click', resetCorners);
       document.getElementById('rotateLeftBtn').addEventListener('click', () => rotateCurrentPage('left'));
       document.getElementById('rotateRightBtn').addEventListener('click', () => rotateCurrentPage('right'));
-      document.getElementById('applyBtn').addEventListener('click', applyScanToCurrentPage);
+      document.getElementById('applyBtn').addEventListener('click', () => applyScanToCurrentPage(false));
       document.getElementById('downloadPngBtn').addEventListener('click', () => downloadCurrent('png'));
       document.getElementById('downloadJpgBtn').addEventListener('click', () => downloadCurrent('jpg'));
       document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
@@ -1104,6 +1035,9 @@
     updateStats();
     renderThumbs();
     bootEmptyCanvas();
+    filterSelect.value = 'cleanColor';
+    contrastRange.value = 28;
+    thresholdRange.value = 12;
 
     window.Module = {
       onRuntimeInitialized() {

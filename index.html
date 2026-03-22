@@ -89,23 +89,23 @@
       .thumbs { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); max-height: none; }
     }
   </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="hero">
+      <div class="title-wrap">
+        <h1>Pro Document Scanner</h1>
+        <p>Nhập ảnh hoặc PDF, tự động nhận diện mép giấy, chỉnh tay 4 góc nếu cần, đổi bộ lọc và xuất lại từng trang hoặc toàn bộ thành PDF. Chạy hoàn toàn trong trình duyệt, phù hợp GitHub Pages.</p>
+      </div>
+      <div class="badge-row">
+        <div class="badge">Ảnh + PDF</div>
+        <div class="badge">Auto scan + chỉnh tay</div>
+        <div class="badge">Xuất PNG/JPG/PDF</div>
       </div>
     </div>
 
     <div class="layout">
       <section class="panel left-col">
-        <div class="panel-head">
-          <h2>Nhập tài liệu</h2>
-          <span class="chip" id="statusChip">Sẵn sàng</span>
-        </div>
-        <div class="panel-body stack">
-          <label class="dropzone" id="dropzone">
-            <div>
-              <h3>Kéo thả file</h3>
-              <p>Hỗ trợ JPG, PNG, WEBP, PDF. Có thể chọn nhiều ảnh cùng lúc.</p>
-            </div>
-            <input id="fileInput" type="file" accept="image/*,.pdf,application/pdf" multiple />
-        <section class="panel left-col">
         <div class="panel-head">
           <h2>Tài liệu</h2>
           <span class="chip" id="statusChip">Sẵn sàng</span>
@@ -140,12 +140,7 @@
         </div>
       </section>
 
-      <section class="panel center-col">witch">
-                <input type="checkbox" id="autoApplyToggle" checked />
-                <span class="slider"></span>
-              </label>
-            </div>
-         <section class="panel center-col">
+      <section class="panel center-col">
         <div class="panel-head">
           <h2>Preview</h2>
           <div class="topbar-right">
@@ -163,7 +158,20 @@
             <div class="topbar-right">
               <button class="icon-btn" id="toggleEditBtn" title="Ẩn/hiện chỉnh tay">▣</button>
               <button class="icon-btn" id="resetCornersBtn" title="Reset góc">↺</button>
-              <button class="icon-btn" id="rotateLeftBtn" tit<section class="panel right-col">
+              <button class="icon-btn" id="rotateLeftBtn" title="Xoay trái">⟲</button>
+              <button class="icon-btn" id="rotateRightBtn" title="Xoay phải">⟳</button>
+            </div>
+          </div>
+          <div class="canvas-stage">
+            <div class="canvas-box" id="canvasBox">
+              <canvas id="previewCanvas"></canvas>
+              <svg id="overlaySvg"></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel right-col">
         <div class="panel-head">
           <h2>Tùy chọn</h2>
           <span class="chip" id="opencvChip">OpenCV loading...</span>
@@ -235,7 +243,48 @@
           </div>
         </div>
       </section>
-    </div> = document.getElementById('autoApplyToggle');
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
+  <script>
+    if (window['pdfjsLib']) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script>
+    
+  </script>
+  <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <script>
+    const state = {
+      pages: [],
+      currentIndex: -1,
+      draggingCorner: -1,
+      cvReady: false,
+      renderVersion: 0,
+    };
+
+    const fileInput = document.getElementById('fileInput');
+    const dropzone = document.getElementById('dropzone');
+    const thumbsEl = document.getElementById('thumbs');
+    const pageCountEl = document.getElementById('pageCount');
+    const selectedPageEl = document.getElementById('selectedPage');
+    const statusChip = document.getElementById('statusChip');
+    const fileNameChip = document.getElementById('fileNameChip');
+    const modeChip = document.getElementById('modeChip');
+    const opencvChip = document.getElementById('opencvChip');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const overlaySvg = document.getElementById('overlaySvg');
+    const previewCtx = previewCanvas.getContext('2d', { willReadFrequently: true });
+    const filterSelect = document.getElementById('filterSelect');
+    const autoEnhanceToggle = document.getElementById('autoEnhanceToggle');
+    const autoApplyToggle = document.getElementById('autoApplyToggle');
     const manualEditToggle = document.getElementById('manualEditToggle');
     const contrastRange = document.getElementById('contrastRange');
     const thresholdRange = document.getElementById('thresholdRange');
